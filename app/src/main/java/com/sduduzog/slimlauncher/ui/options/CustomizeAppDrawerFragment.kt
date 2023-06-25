@@ -30,7 +30,9 @@ class CustomizeAppDrawerFragment : BaseFragment() {
 
         customize_app_drawer_fragment_visible_apps
             .setOnClickListener(Navigation.createNavigateOnClickListener(R.id.action_customiseAppDrawerFragment_to_customiseAppDrawerAppListFragment))
-
+        customize_app_drawer_change_font.setOnClickListener(
+            Navigation.createNavigateOnClickListener(R.id.action_customiseAppDrawerFragment_to_customizeAppDrawerChangeFontFragment)
+        )
         setupKeyboardSwitch()
     }
 

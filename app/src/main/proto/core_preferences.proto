@@ -6,4 +6,13 @@ option java_multiple_files = true;
 message CorePreferences {
   bool activate_keyboard_in_drawer = 1;
   bool keep_device_wallpaper = 2;
+  string chosen_font = 3;
 }
+
+//enum Font {
+//  carme = 0;
+//  lato = 1;
+//  roboto = 2;
+//  ubuntu = 3;
+//
+//}
