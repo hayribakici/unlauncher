@@ -1,22 +1,17 @@
 package com.sduduzog.slimlauncher.ui.options
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import android.widget.RadioGroup
 import androidx.annotation.FontRes
 import androidx.core.content.res.ResourcesCompat
-import androidx.navigation.Navigation
 import com.sduduzog.slimlauncher.R
 import com.sduduzog.slimlauncher.datasource.UnlauncherDataSource
 import com.sduduzog.slimlauncher.utils.BaseFragment
-import com.sduduzog.slimlauncher.utils.setTypeFace
+import com.sduduzog.slimlauncher.utils.setViewGroupTypeface
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.customize_app_drawer_fragment.customize_app_drawer_change_font
-import kotlinx.android.synthetic.main.customize_app_drawer_fragment.customize_app_drawer_fragment_visible_apps
 import kotlinx.android.synthetic.main.customize_app_drawer_fragment_fonts.customize_app_drawer_fragment_change_font_fragment
 import kotlinx.android.synthetic.main.customize_app_drawer_fragment_fonts.radio_group_available_fonts
 import javax.inject.Inject
@@ -30,9 +25,7 @@ class CustomizeAppDrawerChangeFontFragment : BaseFragment() {
     override fun getFragmentView(): ViewGroup = customize_app_drawer_fragment_change_font_fragment
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? = inflater.inflate(R.layout.customize_app_drawer_fragment_fonts, container, false)
 
 
@@ -42,11 +35,8 @@ class CustomizeAppDrawerChangeFontFragment : BaseFragment() {
         radio_group_available_fonts.setOnCheckedChangeListener { group, checkedId ->
             val tag = group.findViewById<RadioButton>(checkedId).tag
             prefsRepo.updateAppFont(tag as String)
-            try {
-                setTypeFace(requireContext().applicationContext, getFontFromTag(tag))
-            } catch (e: Exception) {
-                Log.e("Font", e.message!!)
-            }
+            val typeface = ResourcesCompat.getFont(requireContext(), getFontFromTag(tag))
+            setViewGroupTypeface(requireActivity().findViewById(android.R.id.content), typeface!!)
 
         }
         prefsRepo.liveData().observe(viewLifecycleOwner) {

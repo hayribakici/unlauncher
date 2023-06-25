@@ -9,9 +9,10 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.os.Build
 import android.util.DisplayMetrics
+import android.view.ViewGroup
 import android.view.WindowInsets
-import androidx.annotation.FontRes
-import androidx.core.content.res.ResourcesCompat
+import android.widget.TextView
+import androidx.core.view.get
 
 
 private fun isAppDefaultLauncher(context: Context?): Boolean {
@@ -38,10 +39,7 @@ fun getScreenWidth(activity: Activity): Int {
         val insets: Insets = windowMetrics.windowInsets.getInsetsIgnoringVisibility(
             WindowInsets.Type.systemBars()
         )
-        if (activity.resources.configuration.orientation
-            == Configuration.ORIENTATION_LANDSCAPE
-            && activity.resources.configuration.smallestScreenWidthDp < 600
-        ) { // landscape and phone
+        if (activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && activity.resources.configuration.smallestScreenWidthDp < 600) { // landscape and phone
             val navigationBarSize: Int = insets.right + insets.left
             bounds.width() - navigationBarSize
         } else { // portrait or tablet
@@ -61,10 +59,7 @@ fun getScreenHeight(activity: Activity): Int {
         val insets: Insets = windowMetrics.windowInsets.getInsetsIgnoringVisibility(
             WindowInsets.Type.systemBars()
         )
-        if (activity.resources.configuration.orientation
-            == Configuration.ORIENTATION_LANDSCAPE
-            && activity.resources.configuration.smallestScreenWidthDp < 600
-        ) { // landscape and phone
+        if (activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && activity.resources.configuration.smallestScreenWidthDp < 600) { // landscape and phone
             bounds.height()
         } else { // portrait or tablet
             val navigationBarSize: Int = insets.bottom
@@ -77,13 +72,14 @@ fun getScreenHeight(activity: Activity): Int {
     }
 }
 
-@Throws(Exception::class)
-fun setTypeFace(context: Context, @FontRes fontStyle: Int) {
-    val typeface = ResourcesCompat.getFont(
-        context.applicationContext,
-        fontStyle
-    )
-    val field = Typeface::class.java.getDeclaredField("SERIF")
-    field.isAccessible = true
-    field.set(null, typeface)
+fun setViewGroupTypeface(container: ViewGroup, typeface: Typeface) {
+    val count = container.childCount
+    for (i in 0 until count) {
+        val child = container[i]
+        if (child is TextView) {
+            child.typeface = typeface
+        } else if (child is ViewGroup) {
+            setViewGroupTypeface(child, typeface)
+        }
+    }
 }
