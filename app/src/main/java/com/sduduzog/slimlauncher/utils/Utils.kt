@@ -6,9 +6,12 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Insets
 import android.graphics.Rect
+import android.graphics.Typeface
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.WindowInsets
+import androidx.annotation.FontRes
+import androidx.core.content.res.ResourcesCompat
 
 
 private fun isAppDefaultLauncher(context: Context?): Boolean {
@@ -22,9 +25,11 @@ private fun isAppDefaultLauncher(context: Context?): Boolean {
     return context.packageName == res.activityInfo?.packageName
 }
 
-private fun intentContainsDefaultLauncher(intent: Intent?): Boolean = intent?.action == Intent.ACTION_MAIN && intent.categories?.contains(Intent.CATEGORY_HOME) == true
+private fun intentContainsDefaultLauncher(intent: Intent?): Boolean =
+    intent?.action == Intent.ACTION_MAIN && intent.categories?.contains(Intent.CATEGORY_HOME) == true
 
-fun isActivityDefaultLauncher(activity: Activity?): Boolean = isAppDefaultLauncher(activity) || intentContainsDefaultLauncher(activity?.intent)
+fun isActivityDefaultLauncher(activity: Activity?): Boolean =
+    isAppDefaultLauncher(activity) || intentContainsDefaultLauncher(activity?.intent)
 
 fun getScreenWidth(activity: Activity): Int {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -70,4 +75,15 @@ fun getScreenHeight(activity: Activity): Int {
         activity.windowManager.defaultDisplay.getMetrics(outMetrics)
         outMetrics.heightPixels
     }
+}
+
+@Throws(Exception::class)
+fun setTypeFace(context: Context, @FontRes fontStyle: Int) {
+    val typeface = ResourcesCompat.getFont(
+        context.applicationContext,
+        fontStyle
+    )
+    val field = Typeface::class.java.getDeclaredField("SERIF")
+    field.isAccessible = true
+    field.set(null, typeface)
 }

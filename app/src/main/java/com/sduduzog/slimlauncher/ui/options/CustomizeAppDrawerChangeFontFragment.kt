@@ -1,6 +1,7 @@
 package com.sduduzog.slimlauncher.ui.options
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,12 +13,15 @@ import androidx.navigation.Navigation
 import com.sduduzog.slimlauncher.R
 import com.sduduzog.slimlauncher.datasource.UnlauncherDataSource
 import com.sduduzog.slimlauncher.utils.BaseFragment
+import com.sduduzog.slimlauncher.utils.setTypeFace
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.customize_app_drawer_fragment.customize_app_drawer_change_font
 import kotlinx.android.synthetic.main.customize_app_drawer_fragment.customize_app_drawer_fragment_visible_apps
 import kotlinx.android.synthetic.main.customize_app_drawer_fragment_fonts.customize_app_drawer_fragment_change_font_fragment
 import kotlinx.android.synthetic.main.customize_app_drawer_fragment_fonts.radio_group_available_fonts
 import javax.inject.Inject
 
+@AndroidEntryPoint
 class CustomizeAppDrawerChangeFontFragment : BaseFragment() {
 
     @Inject
@@ -39,18 +43,18 @@ class CustomizeAppDrawerChangeFontFragment : BaseFragment() {
             val tag = group.findViewById<RadioButton>(checkedId).tag
             prefsRepo.updateAppFont(tag as String)
             try {
-                val typeface = ResourcesCompat.getFont(
-                    requireContext().applicationContext,
-                    getFontFromTag(tag)
-                )
-            } catch (e: IllegalStateException) {
-
+                setTypeFace(requireContext().applicationContext, getFontFromTag(tag))
+            } catch (e: Exception) {
+                Log.e("Font", e.message!!)
             }
 
         }
         prefsRepo.liveData().observe(viewLifecycleOwner) {
-            val view = radio_group_available_fonts.findViewWithTag<RadioGroup>(it.chosenFont)
-            radio_group_available_fonts.check(view.id)
+            val view = radio_group_available_fonts.findViewWithTag<RadioButton>(it.chosenFont)
+            // no chosen font found, setting to default
+            val id =
+                view?.id ?: radio_group_available_fonts.findViewWithTag<RadioButton>("ubuntu").id
+            radio_group_available_fonts.check(id)
         }
     }
 
