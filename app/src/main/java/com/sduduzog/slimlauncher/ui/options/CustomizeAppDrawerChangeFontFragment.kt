@@ -5,6 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import android.widget.RadioGroup
+import androidx.annotation.FontRes
+import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.Navigation
 import com.sduduzog.slimlauncher.R
 import com.sduduzog.slimlauncher.datasource.UnlauncherDataSource
@@ -31,12 +34,34 @@ class CustomizeAppDrawerChangeFontFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        radio_group_available_fonts.setOnCheckedChangeListener { group, checkedId -> {
-            val prefsRepo = unlauncherDataSource.corePreferencesRepo
+        val prefsRepo = unlauncherDataSource.corePreferencesRepo
+        radio_group_available_fonts.setOnCheckedChangeListener { group, checkedId ->
             val tag = group.findViewById<RadioButton>(checkedId).tag
+            prefsRepo.updateAppFont(tag as String)
+            try {
+                val typeface = ResourcesCompat.getFont(
+                    requireContext().applicationContext,
+                    getFontFromTag(tag)
+                )
+            } catch (e: IllegalStateException) {
 
-//            prefsRepo.
-        } }
+            }
+
+        }
+        prefsRepo.liveData().observe(viewLifecycleOwner) {
+            val view = radio_group_available_fonts.findViewWithTag<RadioGroup>(it.chosenFont)
+            radio_group_available_fonts.check(view.id)
+        }
+    }
+
+    @FontRes
+    private fun getFontFromTag(tag: String): Int {
+        return when (tag) {
+            "ubuntu" -> R.font.ubuntu
+            "lato" -> R.font.lato
+            "carme" -> R.font.carme
+            "roboto" -> R.font.roboto
+            else -> R.font.ubuntu
+        }
     }
 }

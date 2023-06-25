@@ -57,4 +57,10 @@ class CorePreferencesRepository(
             }
         }
     }
+
+    fun updateAppFont(font: String) {
+        lifecycleScope.launch {
+            corePreferencesStore.updateData { it.toBuilder().setChosenFont(font).build() }
+        }
+    }
 }
