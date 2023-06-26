@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, s: String?) {
-        if (s.equals(getString(R.string.prefs_settings_key_theme), true)) {
+        if (s.equals(getString(R.string.prefs_settings_key_theme), true) || s.equals("font", ignoreCase = true)) {
             recreate()
         }
         if (s.equals(getString(R.string.prefs_settings_key_toggle_status_bar), true)) {
@@ -113,7 +113,8 @@ class MainActivity : AppCompatActivity(),
     fun getUserSelectedThemeRes(): Int {
         settings = getSharedPreferences(getString(R.string.prefs_settings), MODE_PRIVATE)
         val active = settings.getInt(getString(R.string.prefs_settings_key_theme), 0)
-        return resolveTheme(active)
+        val font = settings.getString("font", "")
+        return resolveTheme(active, font)
     }
 
     override fun onBackPressed() {
@@ -145,15 +146,19 @@ class MainActivity : AppCompatActivity(),
 
     companion object {
         @StyleRes
-        fun resolveTheme(i: Int): Int {
-            return when (i) {
-                1 -> R.style.AppThemeDark
-                2 -> R.style.AppGreyTheme
-                3 -> R.style.AppTealTheme
-                4 -> R.style.AppCandyTheme
-                5 -> R.style.AppPinkTheme
-                6 -> R.style.AppThemeLight
-                else -> R.style.AppTheme
+        fun resolveTheme(i: Int, font: String?): Int {
+            if (font == null) {
+                return when (i) {
+                    1 -> R.style.AppThemeDark
+                    2 -> R.style.AppGreyTheme
+                    3 -> R.style.AppTealTheme
+                    4 -> R.style.AppCandyTheme
+                    5 -> R.style.AppPinkTheme
+                    6 -> R.style.AppThemeLight
+                    else -> R.style.AppTheme
+                }
+            } else {
+                return R.style.AppThemeLato
             }
         }
     }

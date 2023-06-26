@@ -1,11 +1,14 @@
 package com.sduduzog.slimlauncher.ui.options
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import androidx.annotation.FontRes
+import androidx.core.content.edit
 import androidx.core.content.res.ResourcesCompat
 import com.sduduzog.slimlauncher.R
 import com.sduduzog.slimlauncher.datasource.UnlauncherDataSource
@@ -22,6 +25,8 @@ class CustomizeAppDrawerChangeFontFragment : BaseFragment() {
     @Inject
     lateinit var unlauncherDataSource: UnlauncherDataSource
 
+    lateinit var settings: SharedPreferences
+
     override fun getFragmentView(): ViewGroup = customize_app_drawer_fragment_change_font_fragment
 
     override fun onCreateView(
@@ -31,13 +36,18 @@ class CustomizeAppDrawerChangeFontFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        settings  = requireContext().getSharedPreferences(getString(R.string.prefs_settings),
+            Context.MODE_PRIVATE
+        )
         val prefsRepo = unlauncherDataSource.corePreferencesRepo
         radio_group_available_fonts.setOnCheckedChangeListener { group, checkedId ->
             val tag = group.findViewById<RadioButton>(checkedId).tag
             prefsRepo.updateAppFont(tag as String)
-            val typeface = ResourcesCompat.getFont(requireContext(), getFontFromTag(tag))
-            setViewGroupTypeface(requireActivity().findViewById(android.R.id.content), typeface!!)
-
+//            val typeface = ResourcesCompat.getFont(requireContext(), getFontFromTag(tag))
+//            setViewGroupTypeface(requireActivity().findViewById(android.R.id.content), typeface!!)
+            settings.edit {
+                putString("font", tag)
+            }
         }
         prefsRepo.liveData().observe(viewLifecycleOwner) {
             val view = radio_group_available_fonts.findViewWithTag<RadioButton>(it.chosenFont)
