@@ -23,10 +23,12 @@ class QuickButtonPreferencesRepository(
         const val IC_CALL = 2
         const val IC_COG = 3
         const val IC_PHOTO_CAMERA = 4
+        const val IC_MESSAGE = 5
         val RES_BY_ICON = mapOf(
             IC_CALL to R.drawable.ic_call,
             IC_COG to R.drawable.ic_cog,
             IC_PHOTO_CAMERA to R.drawable.ic_photo_camera,
+            IC_MESSAGE to R.drawable.ic_msg,
             IC_EMPTY to R.drawable.ic_empty
         )
     }
@@ -46,9 +48,7 @@ class QuickButtonPreferencesRepository(
                 }
             }
 
-    fun liveData(): LiveData<QuickButtonPreferences> {
-        return quickButtonPreferencesFlow.asLiveData()
-    }
+    fun liveData(): LiveData<QuickButtonPreferences> = quickButtonPreferencesFlow.asLiveData()
 
     fun get(): QuickButtonPreferences {
         return runBlocking {
