@@ -1,5 +1,6 @@
 package com.sduduzog.slimlauncher.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +23,7 @@ class HomeAdapter(private val listener: OnLaunchAppListener)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val item = apps.elementAt(position)
+        val item = apps[position]
         holder.mLabelView.text = item.appNickname ?: item.appName
         holder.mLabelView.setOnClickListener {
             listener.onLaunch(item, it)
@@ -31,6 +32,7 @@ class HomeAdapter(private val listener: OnLaunchAppListener)
 
     override fun getItemCount(): Int = apps.size
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setItems(list: List<HomeApp>) {
         this.apps = list
         notifyDataSetChanged()

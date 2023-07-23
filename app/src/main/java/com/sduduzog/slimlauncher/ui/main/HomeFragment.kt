@@ -18,6 +18,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.jkuester.unlauncher.datastore.UnlauncherApp
 import com.sduduzog.slimlauncher.R
 import com.sduduzog.slimlauncher.adapters.AppDrawerAdapter
@@ -37,6 +39,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
 class HomeFragment : BaseFragment(), OnLaunchAppListener {
     @Inject
@@ -46,6 +49,13 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
 
     private lateinit var receiver: BroadcastReceiver
     private lateinit var appDrawerAdapter: AppDrawerAdapter
+
+    private lateinit var inputMethodManager: InputMethodManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        inputMethodManager = requireContext().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View = inflater.inflate(R.layout.home_fragment, container, false)
 
@@ -60,12 +70,8 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
 
         viewModel.apps.observe(viewLifecycleOwner) { list ->
             list?.let { apps ->
-                adapter1.setItems(apps.filter {
-                    it.sortingIndex < 3
-                })
-                adapter2.setItems(apps.filter {
-                    it.sortingIndex >= 3
-                })
+                adapter1.setItems(apps.filter { it.sortingIndex < 3 })
+                adapter2.setItems(apps.filter { it.sortingIndex >= 3 })
 
                 // Set the home apps in the Unlauncher data
                 lifecycleScope.launch {
@@ -74,8 +80,7 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
             }
         }
 
-        appDrawerAdapter =
-            AppDrawerAdapter(AppDrawerListener(), viewLifecycleOwner, unlauncherAppsRepo)
+        appDrawerAdapter = AppDrawerAdapter(AppDrawerListener(), viewLifecycleOwner, unlauncherAppsRepo)
 
         setEventListeners()
 
@@ -186,8 +191,6 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
 
         home_fragment.setTransitionListener(object : TransitionListener {
             override fun onTransitionCompleted(motionLayout: MotionLayout?, currentId: Int) {
-                val inputMethodManager = requireContext().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-
                 when (currentId) {
                     motionLayout?.startState -> {
                         // hide the keyboard and remove focus from the EditText when swiping back up
@@ -221,6 +224,16 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
                 // do nothing
             }
         })
+
+        app_drawer_fragment_list.addOnScrollListener(object : OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                val activateKeyboard =
+                    unlauncherDataSource.corePreferencesRepo.get().activateKeyboardInDrawer
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING && activateKeyboard) {
+                    inputMethodManager.hideSoftInputFromWindow(requireView().windowToken, 0)
+                }
+            }
+        })
     }
 
     fun updateClock() {
@@ -229,7 +242,7 @@ class HomeFragment : BaseFragment(), OnLaunchAppListener {
         val date = Date()
 
         val currentLocale = Locale.getDefault()
-        val fWatchTime = when(active) {
+        val fWatchTime = when (active) {
             1 -> SimpleDateFormat("H:mm", currentLocale)
             2 -> SimpleDateFormat("h:mm aa", currentLocale)
             else -> DateFormat.getTimeInstance(DateFormat.SHORT)
