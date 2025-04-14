@@ -8,6 +8,7 @@ import android.text.Spanned
 import android.text.style.TextAppearanceSpan
 import com.jkuester.unlauncher.datastore.proto.AlignmentFormat
 import com.sduduzog.slimlauncher.R
+import java.util.Locale
 
 fun isDefaultLauncher(context: Context): Boolean {
     val intent = Intent(Intent.ACTION_MAIN)
@@ -34,6 +35,10 @@ fun createTitleAndSubtitleText(context: Context, title: CharSequence, subtitle: 
 }
 
 fun String.firstUppercase() = this.first().uppercase()
+
+fun String.capitalize() = replaceFirstChar {
+    if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+}
 
 fun ApplicationInfo.isSystemApp(): Boolean = (this.flags and ApplicationInfo.FLAG_SYSTEM != 0) ||
     (this.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0)

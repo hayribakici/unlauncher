@@ -9,6 +9,7 @@ import com.jkuester.unlauncher.datasource.toggleShowDrawerHeadings
 import com.jkuester.unlauncher.datastore.proto.CorePreferences
 import com.sduduzog.slimlauncher.R
 import com.sduduzog.slimlauncher.databinding.CustomizeAppDrawerBinding
+import com.sduduzog.slimlauncher.utils.capitalize
 
 fun setupCustomizeAppDrawerBackButton(activity: ComponentActivity) = { options: CustomizeAppDrawerBinding ->
     options.headerBack.setOnClickListener { activity.onBackPressedDispatcher.onBackPressed() }
@@ -36,7 +37,7 @@ fun setupVisibleAppsButton(options: CustomizeAppDrawerBinding) = Navigation
 
 private fun getSearchFieldOptionButtonPositionText(resources: Resources, corePrefs: CorePreferences) = corePrefs
     .searchBarPosition.number.let {
-        resources.getStringArray(R.array.search_bar_position_array)[it].lowercase()
+        resources.getStringArray(R.array.search_bar_position_array)[it].capitalize()
     }
 
 private fun getSearchFieldOptionsButtonKeyboardText(resources: Resources, corePrefs: CorePreferences) =

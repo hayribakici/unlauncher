@@ -20,6 +20,7 @@ import com.jkuester.unlauncher.fragment.WithFragmentLifecycle
 import com.sduduzog.slimlauncher.R
 import com.sduduzog.slimlauncher.databinding.OptionsFragmentBinding
 import com.sduduzog.slimlauncher.utils.BaseFragment
+import com.sduduzog.slimlauncher.utils.capitalize
 import com.sduduzog.slimlauncher.utils.createTitleAndSubtitleText
 import com.sduduzog.slimlauncher.utils.isDefaultLauncher
 import dagger.hilt.android.AndroidEntryPoint
@@ -55,13 +56,24 @@ class OptionsFragment : BaseFragment() {
             launchActivity(it, intent)
             true
         }
-        optionsFragment.optionsFragmentChangeTheme.setOnClickListener {
+        val themeText = optionsFragment.optionsFragmentChangeTheme
+        themeText.text = createTitleAndSubtitleText(requireContext(), themeText.text,
+            corePreferencesRepo.get().theme.name.capitalize())
+        themeText.setOnClickListener {
             ThemeDialog().showNow(childFragmentManager, null)
         }
-        optionsFragment.optionsFragmentChooseTimeFormat.setOnClickListener {
+
+        val timeFormatText = optionsFragment.optionsFragmentChooseTimeFormat
+        timeFormatText.text = createTitleAndSubtitleText(requireContext(), timeFormatText.text,
+            corePreferencesRepo.get().timeFormat.name.capitalize())
+        timeFormatText.setOnClickListener {
             TimeFormatDialog().showNow(childFragmentManager, null)
         }
-        optionsFragment.optionsFragmentChooseClockType.setOnClickListener {
+
+        val clockTypeText = optionsFragment.optionsFragmentChooseClockType
+        clockTypeText.text = createTitleAndSubtitleText(requireContext(), clockTypeText.text,
+            corePreferencesRepo.get().clockType.name.capitalize())
+        clockTypeText.setOnClickListener {
             ClockTypeDialog().showNow(childFragmentManager, "CLOCK_TYPE_CHOOSER")
         }
         optionsFragment.optionsFragmentChooseAlignment.setOnClickListener {
@@ -99,6 +111,7 @@ class OptionsFragment : BaseFragment() {
             // always uncheck once app isn't default launcher
             optionsFragment.optionsFragmentAutoDeviceThemeWallpaper
                 .isChecked = appIsDefaultLauncher && !it.keepDeviceWallpaper
+            optionsFragment.optionsFragmentChooseClockType.text =
         }
         optionsFragment.optionsFragmentAutoDeviceThemeWallpaper
             .setOnCheckedChangeListener { _, checked ->
