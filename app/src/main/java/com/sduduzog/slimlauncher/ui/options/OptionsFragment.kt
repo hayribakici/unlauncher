@@ -6,6 +6,7 @@ import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.navigation.Navigation
 import com.jkuester.unlauncher.datasource.DataRepository
@@ -22,6 +23,7 @@ import com.sduduzog.slimlauncher.databinding.OptionsFragmentBinding
 import com.sduduzog.slimlauncher.utils.BaseFragment
 import com.sduduzog.slimlauncher.utils.capitalize
 import com.sduduzog.slimlauncher.utils.createTitleAndSubtitleText
+import com.sduduzog.slimlauncher.utils.getStringArray
 import com.sduduzog.slimlauncher.utils.isDefaultLauncher
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,6 +35,18 @@ class OptionsFragment : BaseFragment() {
     @Inject @WithFragmentLifecycle
     lateinit var corePreferencesRepo: DataRepository<CorePreferences>
 
+    private lateinit var changeThemeTextView: TextView
+
+    private lateinit var timeFormatTextView: TextView
+    private lateinit var timeFormatString: String
+
+    private lateinit var clockTypeTextView: TextView
+    private lateinit var clockTypeString: TextView
+
+    private lateinit var alignmentTextView: TextView
+    private lateinit var toggleStatusBarTextView: TextView
+    private lateinit var customizeAppDrawerTextView: TextView
+
     override fun getFragmentView(): ViewGroup = OptionsFragmentBinding.bind(
         requireView()
     ).optionsFragment
@@ -40,10 +54,10 @@ class OptionsFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         inflater.inflate(R.layout.options_fragment, container, false)
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val optionsFragment = OptionsFragmentBinding.bind(requireView())
+
         optionsFragment.optionsFragmentDeviceSettings.setOnClickListener {
             val intent = Intent(Settings.ACTION_SETTINGS)
             launchActivity(it, intent)
@@ -56,30 +70,54 @@ class OptionsFragment : BaseFragment() {
             launchActivity(it, intent)
             true
         }
-        val themeText = optionsFragment.optionsFragmentChangeTheme
-        themeText.text = createTitleAndSubtitleText(requireContext(), themeText.text,
-            corePreferencesRepo.get().theme.name.capitalize())
-        themeText.setOnClickListener {
+        changeThemeTextView = optionsFragment.optionsFragmentChangeTheme
+        changeThemeTextView.text = createTitleAndSubtitleText(
+            requireContext(), changeThemeTextView.text,
+            requireContext().getStringArray(R.array.themes_array)[corePreferencesRepo.get().themeValue])
+        changeThemeTextView.setOnClickListener {
             ThemeDialog().showNow(childFragmentManager, null)
         }
 
-        val timeFormatText = optionsFragment.optionsFragmentChooseTimeFormat
-        timeFormatText.text = createTitleAndSubtitleText(requireContext(), timeFormatText.text,
-            corePreferencesRepo.get().timeFormat.name.capitalize())
-        timeFormatText.setOnClickListener {
+        timeFormatTextView = optionsFragment.optionsFragmentChooseTimeFormat
+        timeFormatString = requireContext().getStringArray(
+            R.array.time_format_array
+        )[corePreferencesRepo.get().timeFormatValue]
+        timeFormatTextView.text = createTitleAndSubtitleText(
+            requireContext(),
+            getString(R.string.options_fragment_choose_time_format),
+            timeFormatString
+        )
+        timeFormatTextView.setOnClickListener {
             TimeFormatDialog().showNow(childFragmentManager, null)
         }
 
-        val clockTypeText = optionsFragment.optionsFragmentChooseClockType
-        clockTypeText.text = createTitleAndSubtitleText(requireContext(), clockTypeText.text,
-            corePreferencesRepo.get().clockType.name.capitalize())
-        clockTypeText.setOnClickListener {
+        clockTypeTextView = optionsFragment.optionsFragmentChooseClockType
+        clockTypeTextView.text = createTitleAndSubtitleText(requireContext(),
+            getString(R.string.options_fragment_choose_clock_type),
+            requireContext().getStringArray(R.array.clock_type_array)[corePreferencesRepo.get().clockTypeValue])
+        clockTypeTextView.setOnClickListener {
             ClockTypeDialog().showNow(childFragmentManager, "CLOCK_TYPE_CHOOSER")
         }
-        optionsFragment.optionsFragmentChooseAlignment.setOnClickListener {
+
+        alignmentTextView = optionsFragment.optionsFragmentChooseAlignment
+        alignmentTextView.text = createTitleAndSubtitleText(requireContext(),
+            getString(R.string.options_fragment_choose_alignment),
+            requireContext().getStringArray(R.array.alignment_format_array)
+                [corePreferencesRepo.get().alignmentFormatValue].capitalize())
+        alignmentTextView.setOnClickListener {
             AlignmentFormatDialog().showNow(childFragmentManager, "ALIGNMENT_CHOOSER")
         }
-        optionsFragment.optionsFragmentToggleStatusBar.setOnClickListener {
+
+        toggleStatusBarTextView = optionsFragment.optionsFragmentToggleStatusBar
+        toggleStatusBarTextView.text = createTitleAndSubtitleText(requireContext(),
+            getString(R.string.options_fragment_toggle_status_bar),
+            if (corePreferencesRepo.get().hideStatusBar) {
+                getString(R.string.hidden)
+            } else {
+                getString(R.string.shown)
+            }.capitalize()
+        )
+        toggleStatusBarTextView.setOnClickListener {
             corePreferencesRepo.updateAsync(toggleHideStatusBar())
         }
         optionsFragment.optionsFragmentCustomizeQuickButtons.setOnClickListener(
@@ -99,6 +137,32 @@ class OptionsFragment : BaseFragment() {
         // setting up the switch text, since changing the default launcher re-starts the activity
         // this should able to adapt to it.
         setupAutomaticDeviceWallpaperSwitch()
+        corePreferencesRepo.observe {
+            changeThemeTextView.text = createTitleAndSubtitleText(
+                requireContext(),
+                getString(R.string.options_fragment_change_theme),
+                requireContext().getStringArray(R.array.themes_array)[it.themeValue])
+            timeFormatTextView.text = createTitleAndSubtitleText(
+                requireContext(),
+                getString(R.string.options_fragment_choose_time_format),
+                requireContext().getStringArray(R.array.time_format_array)[it.timeFormatValue]
+            )
+            clockTypeTextView.text = createTitleAndSubtitleText(requireContext(),
+                getString(R.string.options_fragment_choose_clock_type),
+                requireContext().getStringArray(R.array.clock_type_array)[it.clockTypeValue])
+            alignmentTextView.text = createTitleAndSubtitleText(requireContext(),
+                getString(R.string.options_fragment_choose_alignment),
+                requireContext().getStringArray(R.array.alignment_format_array)
+                    [corePreferencesRepo.get().alignmentFormatValue].capitalize())
+            toggleStatusBarTextView.text = createTitleAndSubtitleText(requireContext(),
+                getString(R.string.options_fragment_toggle_status_bar),
+                if (corePreferencesRepo.get().hideStatusBar) {
+                    getString(R.string.hidden)
+                } else {
+                    getString(R.string.shown)
+                }.capitalize()
+            )
+        }
     }
 
     private fun setupAutomaticDeviceWallpaperSwitch() {
@@ -111,7 +175,6 @@ class OptionsFragment : BaseFragment() {
             // always uncheck once app isn't default launcher
             optionsFragment.optionsFragmentAutoDeviceThemeWallpaper
                 .isChecked = appIsDefaultLauncher && !it.keepDeviceWallpaper
-            optionsFragment.optionsFragmentChooseClockType.text =
         }
         optionsFragment.optionsFragmentAutoDeviceThemeWallpaper
             .setOnCheckedChangeListener { _, checked ->

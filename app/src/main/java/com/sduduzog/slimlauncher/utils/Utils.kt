@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.TextAppearanceSpan
+import androidx.annotation.ArrayRes
 import com.jkuester.unlauncher.datastore.proto.AlignmentFormat
 import com.sduduzog.slimlauncher.R
 import java.util.Locale
@@ -39,6 +40,8 @@ fun String.firstUppercase() = this.first().uppercase()
 fun String.capitalize() = replaceFirstChar {
     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
 }
+
+fun Context.getStringArray(@ArrayRes res: Int) = this.resources.getStringArray(res)
 
 fun ApplicationInfo.isSystemApp(): Boolean = (this.flags and ApplicationInfo.FLAG_SYSTEM != 0) ||
     (this.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP != 0)
